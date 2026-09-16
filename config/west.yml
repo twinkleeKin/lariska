@@ -14,9 +14,9 @@ manifest:
     - name: zmk-paw3395-driver
       remote: ggrocer
       revision: main
-    - name: zmk-vfx-rgbled-indicator
+    - name: zmk-vfx-rgbled-indicatorv
       remote: ggrocer
-      revision: main
+      revision: v0.3.0
     - name: zmk-input-processor-report-rate-limit
       remote: badjeff
       revision: main
