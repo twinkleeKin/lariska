@@ -16,9 +16,9 @@ manifest:
       revision: 586803f02441b7d84f12f077a2fca540b3e9d9d5
     - name: zmk-vfx-rgbled-indicator
       remote: ggrocer
-      revision: 402d781adbd9e5b4f5318c50bb2763e3c3f28790
+      revision: main
     - name: zmk-input-processor-report-rate-limit
       remote: badjeff
-      revision: b056cb135525933743e2627150fb390f9d4b2461
+      revision: main
   self:
     path: config
