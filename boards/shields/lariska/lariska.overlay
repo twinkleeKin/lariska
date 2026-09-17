@@ -127,7 +127,10 @@ encoder: &qdec0 {
 		// paw3395 driver parameters
 		irq-gpios = <&gpio0 7 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		cpi-gpios = <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-		cpi = <600 1200 2400 3200>;
+		// cpi = <600 1200 2400 3200>;
+		// Zephyr4.1后的语法修正
+		cpi = <1200>;                              /* 初始 CPI，单个数值 */
+        cpi-array = <600 1200 2400 3200>;  /* 可选的多档 CPI 列表 */
 		// swap-xy; /* optional */
 		invert-x; /* optional */
 		// invert-y; /* optional */
