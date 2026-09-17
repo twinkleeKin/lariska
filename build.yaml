@@ -13,5 +13,5 @@
 #
 ---
 include:
-  - board: nice_nano@1//zmk
+  - board: nice_nano//zmk
     shield: lariska
