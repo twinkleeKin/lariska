@@ -6,6 +6,8 @@ manifest:
       url-base: https://github.com/greengrocer98
     - name: badjeff
       url-base: https://github.com/badjeff
+    - name: nrfconnect
+      url-base: https://github.com/nrfconnect
   projects:
     - name: zmk
       remote: zmkfirmware
@@ -20,5 +22,22 @@ manifest:
     - name: zmk-input-processor-report-rate-limit
       remote: badjeff
       revision: main
+
+    # ---- 以下是为了让鼠标变成 ESB split peripheral（配合 corne_esb_dongle 接收器）----
+    # ESB split transport 模块本体
+    - name: zmk-feature-split-esb
+      remote: badjeff
+      revision: zmk-0.4
+    # nRF Connect SDK（ZMK 适配补丁版），ESB 驱动与 MPSL 都在这里
+    - name: sdk-nrf
+      remote: badjeff
+      revision: v3.1-branch+zmk-fixes
+      path: nrf
+    # NCS 的二进制库（MPSL 等）
+    - name: nrfxlib
+      remote: nrfconnect
+      revision: v3.1-branch
+      repo-path: sdk-nrfxlib
+      path: nrfxlib
   self:
     path: config

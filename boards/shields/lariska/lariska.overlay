@@ -1,4 +1,22 @@
+/*
+ * Lariska 鼠标 —— ESB split peripheral 版本的 devicetree
+ *
+ * 与上游原版的差异（**鼠标自己的按键定义保持原样**）：
+ *   * 5 个按键仍然是原来的 zmk,kscan-gpio-direct（按键位置 0~4 不变）；
+ *   * 新增 esb_split：ESB 收发地址，必须与 dongle 的 config/corne.overlay 逐字节一致；
+ *   * 新增 split_inputs 里的 mou0_split(reg=4)：指针事件经 ESB 上报给 dongle；
+ *   * 原来指向 &mou0 的 input-listener 在 lariska.keymap 里禁用了（那是 central 角色的用法）。
+ *
+ * 关于按键位置：鼠标按键上报的是 key position 0~4。dongle 侧的 corne keymap
+ * 把 0~4 专门留给鼠标按键，corne 自己的键位编号整体后移了 5 位（见
+ * zmk-config 仓库的 config/corne.overlay 注释），所以这里什么都不用改。
+ */
+
 #include <dt-bindings/zmk/matrix_transform.h>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+// 报告率限速处理器的节点定义（原来在 lariska.keymap 里 include，挪到这里，
+// 因为 ESB 版本下它挂在 &mou0_split 上，而 overlay 会比 keymap 先被处理）
+#include <input/processors/report_rate_limit.dtsi>
 #include "mouse_leds.dtsi"
 
 / {
@@ -30,6 +48,7 @@
         >;
     };
 
+    // 5 个鼠标按键：原样保留（键盘事件，位置 0~4）
     kscan0: kscan {
         compatible = "zmk,kscan-gpio-direct";
         wakeup-source;
@@ -40,6 +59,32 @@
             , <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
             , <&gpio0 3 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
             ;
+    };
+
+    /*
+     * ESB 收发地址：这些是示例地址，必须与 dongle 的
+     * config/corne.overlay 里的值逐字节一致，否则收不到。
+     */
+    esb_split {
+        compatible = "zmk,esb-split";
+        base-addr-0 = <0xE7 0xE7 0xE7 0xE7>;
+        base-addr-1 = <0xC2 0xC2 0xC2 0xC2>;
+        addr-prefix = <0xE7 0xC2 0xC3 0xC4 0xC5 0xC6 0xC7 0xC8>;
+    };
+
+    /*
+     * ESB 事件路由：指针走 input 通道（reg=4），
+     * dongle 侧要有相同 reg 的 zmk,input-split 节点。
+     * 按键不需要这里——它们走 key position（见文件头说明）。
+     */
+    split_inputs {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        mou0_split: mou0_split@4 {
+            compatible = "zmk,input-split";
+            reg = <4>;
+        };
     };
 
     // encoder: encoder {
@@ -56,6 +101,12 @@
         triggers-per-rotation = <24>;
     };
 
+};
+
+// 指针事件：peripheral 侧先用原来的限速处理器处理，再经 ESB 上报
+&mou0_split {
+    device = <&mou0>;
+    input-processors = <&zip_report_rate_limit 15>;
 };
 
 &pinctrl {
@@ -107,8 +158,6 @@ encoder: &qdec0 {
 	};
 };
 
-#include <zephyr/dt-bindings/input/input-event-codes.h>
-
 &spi2 {
 	compatible = "nordic,nrf-spim";
     status = "okay";
@@ -128,9 +177,8 @@ encoder: &qdec0 {
 		irq-gpios = <&gpio0 7 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		// cpi-gpios = <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		// cpi = <600 1200 2400 3200>;
-		// Zephyr4.1后的语法修正
-		cpi = <1200>;                              /* 初始 CPI，单个数值 */
-        // cpi-array = <600 1200 2400 3200>;  /* 可选的多档 CPI 列表 */
+		cpi = <1200>;                        // initial CPI (single value)
+        // cpi-array = <600 1200 2400 3200>;  // optional multi-step CPI list
 		// swap-xy; /* optional */
 		invert-x; /* optional */
 		// invert-y; /* optional */

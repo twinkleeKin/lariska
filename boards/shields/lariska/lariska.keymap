@@ -4,7 +4,12 @@
 #include <dt-bindings/zmk/outputs.h>
 #include <dt-bindings/zmk/pointing.h>
 
-#include <input/processors/report_rate_limit.dtsi>
+/*
+ * 报告率限速处理器（zip_report_rate_limit）的节点定义现在放在 lariska.overlay 里，
+ * 因为 ESB 版本下它挂在 &mou0_split 上（peripheral 侧先限速再上报）。
+ * 原来这里的 `&zip_report_rate_limit { limit-ble-only; }` 也一起去掉了：
+ * BLE 已关闭，限速应当在 ESB 上同样生效。
+ */
 
 #define U_TAPPING_TERM 220
 #define U_QUICK_TAP 200
@@ -12,11 +17,6 @@
 #define BASE 0
 #define VOLUME 1
 #define ADDIONAL 2
-
-
-&zip_report_rate_limit {
-        limit-ble-only;
-};
 
 / {
 
@@ -48,13 +48,16 @@
         };
     };
 
+    /*
+     * 这是 central 角色的用法：会把 &mou0 的事件本地消费掉（不再发出）。
+     * ESB 版本里指针/按键都通过 lariska.overlay 里的 mou0_split(reg=4) /
+     * mbtn_split(reg=5) 上报给 dongle，所以这里要禁用；
+     * 限速处理器节点（zip_report_rate_limit）已经改挂在 &mou0_split 上。
+     */
     mou0_mmv_il {
         compatible = "zmk,input-listener";
+        status = "disabled";
         device = <&mou0>;
-        limiter {
-                layers = <BASE VOLUME ADDIONAL>;
-                input-processors = <&zip_report_rate_limit 15>;
-        };
     };
 
     keymap {
