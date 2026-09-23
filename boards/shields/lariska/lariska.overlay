@@ -106,7 +106,7 @@
 // 指针事件：peripheral 侧先用原来的限速处理器处理，再经 ESB 上报
 &mou0_split {
     device = <&mou0>;
-    input-processors = <&zip_report_rate_limit 15>;
+    input-processors = <&zip_report_rate_limit 1>;
 };
 
 &pinctrl {
