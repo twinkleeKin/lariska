@@ -177,7 +177,7 @@ encoder: &qdec0 {
 		irq-gpios = <&gpio0 7 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		// cpi-gpios = <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		// cpi = <600 1200 2400 3200>;
-		cpi = <4800>;                        // initial CPI (single value)
+		cpi = <3200>;                        // initial CPI (single value)
         // cpi-array = <600 1200 2400 3200>;  // optional multi-step CPI list
 		// swap-xy; /* optional */
 		invert-x; /* optional */
